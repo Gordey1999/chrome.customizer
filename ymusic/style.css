@@ -1,0 +1,54 @@
+html.customizerActive .sidebar__under .teaser {
+    display: none;
+}
+
+html.customizerActive .head-kids {
+    background: none !important;
+}
+
+html.customizerActive .theme-black .deco-pane, .theme-black .deco-pane-back, .theme-black .deco-pane-secondary, body .local-theme-black.deco-pane, body .local-theme-black .deco-pane, body .local-theme-black.deco-pane-back, body .local-theme-black .deco-pane-back, body .local-theme-black.deco-pane-secondary, body .local-theme-black .deco-pane-secondary {
+    background: none !important;
+}
+
+html.customizerActive ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+html.customizerActive .my_background {
+    z-index: -100;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+html.customizerActive .my_background_front {
+    z-index: -100;
+    background-color: black;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+html.customizerActive .bar {
+    /*max-width: unset !important;*/
+    /*left: 0 !important;*/
+}
+html.customizerActive .player-controls.deco-player-controls {
+    background-color: rgba(0,0,0,.7) !important;
+}
+
+html.customizerActive .audio-animation__fallback {
+    display: none;
+}
+
+/*new tab*/
+html.customizerActive body {
+    background: none;
+}

@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Customizator!",
+  "description": "Custom backgrounds!",
+  "version": "1.0.0",
+  "icons": {"128": "icon_128.png"},
+  "action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup/index.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["file:///*", "https://music.yandex.ru/*"],
+      "css": ["ymusic/style.css"],
+      "js": ["ymusic/script.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["images/*", "images2/*"],
+      "matches": ["file:///*", "https://music.yandex.ru/*"]
+    }
+  ],
+  "permissions": ["tabs", "activeTab", "storage"],
+
+  "chrome_url_overrides": {
+    "newtab": "newtab/index.html"
+  }
+}

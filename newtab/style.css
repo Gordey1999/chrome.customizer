@@ -1,0 +1,46 @@
+
+body {
+    color: var(--color-main);
+    font-family: monospace;
+    background: black;
+    margin: 0;
+    padding: 20px 30px;
+    width: 100%;
+    height: 1000px;
+    font-size: 18px;
+    line-height: 35px;
+    border: none;
+    user-select: none;
+}
+
+.button {
+    padding: 0 12.37px;
+}
+
+.button:hover {
+    background: var(--color-main);
+    color: black;
+    cursor: pointer;
+}
+
+.button-check {
+    background: none;
+    color: var(--color-main);
+}
+.button-check:hover {
+    background: var(--color-main);
+    color: black;
+}
+.button-check.active {
+    background: var(--color-main);
+    color: black;
+}
+
+::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.row-theme {
+    max-width: 300px;
+}

@@ -1,0 +1,41 @@
+
+html {
+    background-color: black;
+    user-select: none;
+}
+body {
+    color: var(--color-main);
+    font-family: monospace;
+    background: black;
+    margin: 0;
+    padding: 20px 30px;
+    width: 230px;
+    font-size: 18px;
+    line-height: 35px;
+    border: none;
+}
+
+.button {
+    padding: 0 12.37px;
+}
+.button-small {
+    padding: 0;
+}
+.button:hover {
+    background: var(--color-main);
+    color: black;
+    cursor: pointer;
+}
+
+.button-check {
+    background: none;
+    color: var(--color-main);
+}
+.button-check:hover {
+    background: var(--color-main);
+    color: black;
+}
+.button-check.active {
+    background: var(--color-main);
+    color: black;
+}
