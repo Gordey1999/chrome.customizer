@@ -14,7 +14,7 @@
 
             this.frontInnerEl.style.width = this.backEl.offsetWidth + 'px';
 
-            this.showValue(this.input.value);
+            this.render();
 
             this.active = false;
             this.currentValue = 0;
@@ -65,10 +65,11 @@
             this.active = false;
         }
         onInput(e) {
-            this.showValue(this.input.value);
+            this.render();
         }
 
-        showValue(value) {
+        render() {
+            const value = this.input.value;
             this.currentValue = value;
             this.backEl.innerHTML = value;
             this.frontInnerEl.innerHTML = value;
@@ -84,13 +85,6 @@
         }
     }
 
-    const sliders = document.querySelectorAll('.js-slider');
-
-    sliders.forEach(function(el) {
-        new Slider(el);
-    });
-
-
     class Select {
         constructor(element) {
             this.el = element;
@@ -99,7 +93,7 @@
             this.plus = element.querySelector('.select_plus');
             this.text = element.querySelector('.select_text');
 
-            this.showValue(this.input.value);
+            this.render();
 
             this.bind();
         }
@@ -118,11 +112,11 @@
             this.setValue(parseInt(this.input.value) + 1);
         }
         onInput(e) {
-            this.showValue(this.input.value);
+            this.render();
         }
 
-        showValue(value) {
-            this.text.innerHTML = value;
+        render() {
+            this.text.innerHTML = this.input.value;
         }
         setValue(value) {
             if (value < 1)
@@ -138,10 +132,52 @@
         }
     }
 
-    const selects = document.querySelectorAll('.js-select');
+    class Checkbox {
+        constructor(element) {
+            this.el = element;
+            this.input = element.querySelector('input')
 
-    selects.forEach(function(el) {
+            this.render();
+            this.bind();
+        }
+
+        bind() {
+            this.el.addEventListener('click', this.onClick.bind(this));
+            this.input.addEventListener('input', this.onInput.bind(this));
+        }
+
+        onClick(e) {
+            this.setValue(!this.input.value);
+        }
+        onInput(e) {
+            this.render();
+        }
+
+        render() {
+            if (this.input.value) {
+                this.el.innerHTML = this.input.dataset.on;
+                this.el.classList.add('active');
+            } else {
+                this.el.innerHTML = this.input.dataset.off;
+                this.el.classList.remove('active');
+            }
+        }
+        setValue(value) {
+            const changed = Boolean(this.input.value) !== value;
+            this.input.value = value ? 1 : '';
+            if (changed)
+                triggerEvent(this.input, 'input');
+        }
+    }
+
+    document.querySelectorAll('.js-select').forEach(function(el) {
         new Select(el);
+    });
+    document.querySelectorAll('.js-slider').forEach(function(el) {
+        new Slider(el);
+    });
+    document.querySelectorAll('.js-checkbox').forEach(function(el) {
+        new Checkbox(el);
     });
 
 })();

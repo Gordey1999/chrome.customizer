@@ -1,7 +1,7 @@
 
 (function() {
-    const btnRun = document.querySelector('.js-button-run');
-    const btnRunDefault = document.querySelector('.js-button-run-default')
+    const checkboxRun = document.querySelector('.js-check-run');
+    const checkboxRunDefault = document.querySelector('.js-check-run-default')
     const inputBrightness = document.querySelector('.js-brightness');
     const inputImage = document.querySelector('.js-select-image');
 
@@ -18,16 +18,16 @@
 
         if (response?.settings?.runDefault)
         {
-            btnRunDefault.classList.add('active');
-            btnRunDefault.innerHTML = btnRun.dataset.on;
+            checkboxRunDefault.value = 1;
+            triggerEvent(checkboxRunDefault, 'input');
         }
 
         tabData = Object.assign(tabData, response.tabData ?? {});
 
         if (tabData.active)
         {
-            btnRun.classList.add('active');
-            btnRun.innerHTML = btnRun.dataset.on;
+            checkboxRun.value = 1;
+            triggerEvent(checkboxRun, 'input');
         }
         inputBrightness.value = tabData.brightness;
         inputImage.value = tabData.imageIndex;
@@ -39,8 +39,8 @@
 
 
 
-    btnRun.addEventListener('click', function (e) {
-        tabData.active = toggleButton(this);
+    checkboxRun.addEventListener('input', function (e) {
+        tabData.active = Boolean(this.value);
         queryRedrawTab();
     });
 
@@ -55,8 +55,8 @@
     });
 
 
-    btnRunDefault.addEventListener('click', function (e) {
-        let active = toggleButton(this);
+    checkboxRunDefault.addEventListener('input', function (e) {
+        let active = Boolean(this.value);
 
         const message = {
             action: "customizerSaveSettings",
@@ -66,20 +66,6 @@
         };
         chrome.runtime.sendMessage(message);
     });
-
-    function toggleButton(button) {
-        button.classList.toggle('active');
-
-        const active = button.classList.contains('active');
-
-        if (active) {
-            button.innerHTML = button.dataset.on;
-        } else {
-            button.innerHTML = button.dataset.off;
-        }
-
-        return active;
-    }
 
     function queryRedrawTab() {
         const message = {

@@ -63,3 +63,29 @@ body {
 .slider-small .slider_back, .slider-small .slider_front-inner, .slider-small .slider_area {
     line-height: 1.15em;
 }
+
+
+.button {
+    padding: 0 12.37px;
+}
+.button-small {
+    padding: 0;
+}
+.button:hover {
+    background: var(--color-main);
+    color: black;
+    cursor: pointer;
+}
+
+.button-check {
+    background: none;
+    color: var(--color-main);
+}
+.button-check:hover {
+    background: var(--color-main);
+    color: black;
+}
+.button-check.active {
+    background: var(--color-main);
+    color: black;
+}

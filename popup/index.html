@@ -8,8 +8,11 @@
 </head>
 
 <body>
-    <div class="modal-header">
-        customize: <span class="button button-check js-button-run" data-on="on" data-off="off">off</span>
+    <div class="content">
+        customize:
+        <span class="button button-check js-checkbox">
+            <input type="hidden" class="js-check-run" value="0" data-on="on" data-off="off">off
+        </span>
         <br>
         image:
         <span class="js-select">
@@ -37,11 +40,15 @@
             </div>
         </div>
 
-    </div>
-    -----------------------
-    <br>
-    <div class="modal-content">
-        run by default: <span class="button button-check js-button-run-default" data-on="on" data-off="off">off</span>
+        -----------------------
+        <br>
+        <div>
+            run by default:
+            <span class="button button-check js-checkbox">
+            <input type="hidden" class="js-check-run-default" value="" data-on="on" data-off="off">off
+        </span>
+        </div>
+
     </div>
 
     <script src="script.js"></script>

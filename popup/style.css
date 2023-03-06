@@ -5,8 +5,12 @@ html {
 }
 body {
     color: var(--color-main);
+    margin: 0;
+    padding: 0;
+}
+
+.content {
     font-family: monospace;
-    background: black;
     margin: 0;
     padding: 20px 30px;
     width: 230px;
@@ -15,27 +19,11 @@ body {
     border: none;
 }
 
-.button {
-    padding: 0 12.37px;
-}
-.button-small {
-    padding: 0;
-}
-.button:hover {
-    background: var(--color-main);
-    color: black;
-    cursor: pointer;
-}
-
-.button-check {
-    background: none;
+.glitch {
+    position: absolute;
+    left: 0;
+    top: 0;
+    --color-main: hsl(270, 100%, 100%);
     color: var(--color-main);
-}
-.button-check:hover {
-    background: var(--color-main);
-    color: black;
-}
-.button-check.active {
-    background: var(--color-main);
-    color: black;
+    z-index: -100;
 }
