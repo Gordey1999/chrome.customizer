@@ -14,7 +14,7 @@
 
     chrome.runtime.sendMessage({ action: 'customizerInitPopup' }, function(response) {
 
-        setTheme(response.settings.theme, response.settings.themeBright);
+        setTheme(response.settings.theme, response.settings.themeBright, response.settings.glitch);
 
         if (response?.settings?.runDefault)
         {

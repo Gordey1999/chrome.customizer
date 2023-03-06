@@ -5,7 +5,8 @@
         imageNumber: 1,
         brightness: 50,
         theme: 170,
-        themeBright: 50
+        themeBright: 50,
+        glitch: true
     };
 
     /* save images in images/ and name them like 1.png, 2.png ... [imagesCount].png. Only png)) */

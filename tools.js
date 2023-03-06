@@ -136,6 +136,7 @@
         constructor(element) {
             this.el = element;
             this.input = element.querySelector('input')
+            this.text = element.querySelector('.button-text');
 
             this.render();
             this.bind();
@@ -155,10 +156,10 @@
 
         render() {
             if (this.input.value) {
-                this.el.innerHTML = this.input.dataset.on;
+                this.text.innerHTML = this.input.dataset.on;
                 this.el.classList.add('active');
             } else {
-                this.el.innerHTML = this.input.dataset.off;
+                this.text.innerHTML = this.input.dataset.off;
                 this.el.classList.remove('active');
             }
         }
@@ -170,6 +171,83 @@
         }
     }
 
+
+    class Glitch {
+
+        constructor(element) {
+            this.el = element;
+            this.container = element.parentNode;
+            this.glitch = null;
+            this.step = 0;
+            this.delay = 0;
+
+            this.bind();
+            this.repeat();
+        }
+
+        bind() {
+            this.el.addEventListener('mousedown', this.onMousedown.bind(this));
+
+            this.el.querySelectorAll('input').forEach(() => {
+                addEventListener('input', this.onInput.bind(this))
+            })
+        }
+
+        onMousedown(e) {
+            if (Math.random() < 0.5)
+                setTimeout(this.create.bind(this), this.rand(this.delay), true);
+        }
+
+        onInput(e) {
+            if (Math.random() < 0.01)
+                setTimeout(this.create.bind(this), this.rand(this.delay), true);
+        }
+
+        create(short) {
+            if (this.glitch) return;
+
+            this.glitch = this.el.cloneNode(true);
+            this.glitch.classList.add('glitch');
+            this.step = 1;
+            this.container.append(this.glitch);
+            this.delay = 100;
+            this.short = short;
+            this.move();
+        }
+
+        repeat() {
+            this.create();
+            setTimeout(this.repeat.bind(this), this.rand(20000));
+        }
+
+        move() {
+            const distance = this.step * 2;
+
+            this.glitch.style.top = this.rand(distance * 2) - distance + 'px';
+            this.glitch.style.left = this.rand(distance * 2) - distance + 'px';
+
+            this.step++;
+
+            const v = this.short ? 0.3 : 0.1;
+
+            const again = Math.random() > (v * this.step);
+            if (again)
+                setTimeout(this.move.bind(this), this.rand(this.delay));
+            else
+                setTimeout(this.stop.bind(this), this.rand(this.delay * this.step));
+        }
+
+        rand(max) {
+            return Math.floor(Math.random() * max);
+        }
+
+        stop() {
+            this.glitch.remove();
+            this.glitch = null;
+        }
+    }
+
+
     document.querySelectorAll('.js-select').forEach(function(el) {
         new Select(el);
     });
@@ -180,15 +258,22 @@
         new Checkbox(el);
     });
 
+    window.triggerEvent = function(element, eventName) {
+        const event = new Event(eventName, { bubbles: true, cancelable: true });
+        element.dispatchEvent(event);
+    }
+
+    let glitchObj = null;
+    window.setTheme = function(color, brightness, glitch) {
+        const hsl = 'hsl(' + color + ', 100%, ' + brightness + '%)';
+        if (glitch && !glitchObj) {
+
+            document.querySelectorAll('.js-glitch').forEach(function(el) {
+                glitchObj = new Glitch(el);
+            });
+        }
+
+        document.querySelector('body').style.setProperty('--color-main', hsl);
+    }
+
 })();
-
-function triggerEvent(element, eventName) {
-    const event = new Event(eventName, { bubbles: true, cancelable: true });
-    element.dispatchEvent(event);
-}
-
-function setTheme(color, brightness) {
-    const hsl = 'hsl(' + color + ', 100%, ' + brightness + '%)';
-
-    document.querySelector('body').style.setProperty('--color-main', hsl);
-}
