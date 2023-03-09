@@ -1,20 +1,3 @@
-html.customizerActive .sidebar__under .teaser {
-    display: none;
-}
-
-html.customizerActive .head-kids {
-    background: none !important;
-}
-
-html.customizerActive .theme-black .deco-pane, .theme-black .deco-pane-back, .theme-black .deco-pane-secondary, body .local-theme-black.deco-pane, body .local-theme-black .deco-pane, body .local-theme-black.deco-pane-back, body .local-theme-black .deco-pane-back, body .local-theme-black.deco-pane-secondary, body .local-theme-black .deco-pane-secondary {
-    background: none !important;
-}
-
-html.customizerActive ::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-}
-
 html.customizerActive .my_background {
     z-index: -100;
     background-repeat: no-repeat;
@@ -34,6 +17,25 @@ html.customizerActive .my_background_front {
     position: fixed;
     top: 0;
     left: 0;
+}
+
+
+
+html.customizerActive .sidebar__under .teaser {
+    display: none;
+}
+
+html.customizerActive .head-kids {
+    background: none !important;
+}
+
+html.customizerActive .theme-black .deco-pane, .theme-black .deco-pane-back, .theme-black .deco-pane-secondary, body .local-theme-black.deco-pane, body .local-theme-black .deco-pane, body .local-theme-black.deco-pane-back, body .local-theme-black .deco-pane-back, body .local-theme-black.deco-pane-secondary, body .local-theme-black .deco-pane-secondary {
+    background: none !important;
+}
+
+html.customizerActive ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
 }
 
 html.customizerActive .bar {
