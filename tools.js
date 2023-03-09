@@ -213,6 +213,7 @@
 
         repeat() {
             this.create();
+            return;
             setTimeout(this.repeat.bind(this), this.rand(20000));
         }
 
@@ -270,6 +271,13 @@
         }
 
         document.querySelector('body').style.setProperty('--color-main', hsl);
+    }
+
+    window.triggerGlitch = function() {
+        if (glitchObj)
+        {
+            glitchObj.create();
+        }
     }
 
 })();
