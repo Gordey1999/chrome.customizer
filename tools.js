@@ -24,8 +24,7 @@
 
         bind() {
             this.moveArea.addEventListener('mousedown', this.onMousedown.bind(this));
-            this.moveArea.addEventListener('mousemove', this.onMousemove.bind(this));
-            this.moveArea.addEventListener('mouseout', this.onMouseout.bind(this));
+            document.addEventListener('mousemove', this.onMousemove.bind(this));
 
             this.input.addEventListener('input', this.onInput.bind(this));
 
@@ -33,28 +32,25 @@
         }
 
         onMousedown(e) {
+            this.moveStart = e.screenX - e.offsetX;
             this.active = true;
         }
 
         onMousemove(e) {
-            if (!this.active)
+            if (!this.active || !this.moveStart)
                 return;
 
-            let offset = e.offsetX < 0 ? 0 : e.offsetX;
+            let offset = e.screenX - this.moveStart;
+            if (offset > this.moveArea.offsetWidth)
+                offset = this.moveArea.offsetWidth
+            else if (offset < 0)
+                offset = 0;
+
             let valueFloat = offset / this.moveArea.offsetWidth;
 
             let value = Math.round(valueFloat * this.maxValue / this.step) * this.step;
 
             this.setValue(value);
-        }
-        onMouseout(e) {
-            if (!this.active)
-                return;
-
-            if (e.offsetX <= 0)
-                this.setValue(0);
-            else if (e.offsetX >= this.moveArea.offsetWidth)
-                this.setValue(this.maxValue);
         }
 
         onDocumentMouseup(e) {
