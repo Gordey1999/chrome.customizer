@@ -87,6 +87,8 @@
 						cellHeight: ch
 					}
 			};
+
+			this.ai = new SnakeAI(this);
 		}
 
 		bind() {
@@ -180,6 +182,9 @@
 				const mealPos = this.getNewMealPosition();
 				this.map[newX][newY].setPosition(mealPos.x, mealPos.y);
 				this.tail.push(new SnakeTail(this, tail.x, tail.y));
+
+
+				this.ai.makeMap();
 			}
 			newHead.setPosition(newX, newY);
 
@@ -316,6 +321,146 @@
 						if (this.map[i][head.y] instanceof SnakeTail)
 							return i - head.x;
 					return this.field.width - head.x;
+			}
+		}
+	}
+
+	class SnakeAI
+	{
+		constructor(game) {
+			this.game = game;
+			this.map = [];
+			for (let i = 0; i < game.field.width; i++) {
+
+				this.map[i] = [];
+				for (let j = 0; j < game.field.height; j++) {
+					const cell = document.createElement('div');
+					cell.classList.add('snake_dubug');
+					const pos = this.game.getCellPosition(i, j);
+					cell.style.top = pos.y + 'px';
+					cell.style.left = pos.x + 'px';
+					this.game.el.append(cell);
+
+					this.map[i].push({
+						steps: null,
+						rotates: 0,
+						dir: null,
+						cell: cell,
+						tail: null,
+						x: i,
+						y: j,
+					});
+				}
+			}
+		}
+
+		makeMap() {
+			this.clear();
+
+			//this.findMeal();
+
+			let step = 0;
+			let arr = new Array(1000);
+			let arr2 = new Array(1000);
+			arr[0] = this.head;
+			let count = 1;
+			let count2 = 0;
+
+			let found = false;
+			while (!found && step < 100) {
+				// arr.forEach(item => {
+				// 	count2 = this.calcCell(item, arr2, count2);
+				// });
+				for (let i = 0; i < count; i++) {
+					const cell = arr[i];
+					if (this.game.map[cell.x][cell.y] instanceof SnakeMeal) {
+						found = true;
+						break;
+					}
+					count2 = this.calcCell(cell, arr2, count2);
+				}
+
+				arr = [arr2, arr2 = arr][0];
+				count = count2;
+				count2 = 0;
+
+				step++;
+			}
+
+			debugger;
+		}
+
+		calcCell(current, arr, count) {
+			const i = current.x;
+			const j = current.y;
+			const mx = this.map.length - 1;
+			const my = this.map[0].length - 1;
+
+			//const tail = current.tail ?? 0;
+
+			const left = i > 0 ? this.map[i - 1][j] : null;
+			const right = i < mx ? this.map[i + 1][j] : null;
+			const top = j > 0 ? this.map[i][j - 1] : null;
+			const bottom = j < my ? this.map[i][j + 1] : null;
+
+			if (left && left.steps === null && left.tail <= current.steps) {
+				this.set(i - 1, j, current.steps + 1);
+				arr[count] = left;
+				count++;
+			}
+			if (right && right.steps === null && right.tail <= current.steps) {
+				this.set(i + 1, j, current.steps + 1);
+				arr[count] = right;
+				count++;
+			}
+			if (top && top.steps === null && top.tail <= current.steps) {
+				this.set(i, j - 1, current.steps + 1);
+				arr[count] = top;
+				count++;
+			}
+			if (bottom && bottom.steps === null && bottom.tail <= current.steps) {
+				this.set(i, j + 1, current.steps + 1);
+				arr[count] = bottom;
+				count++;
+			}
+
+			return count;
+		}
+
+		set(x, y, steps = null, rotates = null, dir = null) {
+			this.map[x][y].steps = steps;
+			this.map[x][y].rotates = rotates;
+			this.map[x][y].dir = dir;
+
+			const s = steps !== null ? steps : '';
+			const t = this.map[x][y].tail !== null ? this.map[x][y].tail : '';
+			//this.map[x][y].cell.innerHTML = s + '-' + t;
+			//this.map[x][y].cell.innerHTML = t;
+			const hsl = 'rgb(' + (this.map[x][y].steps * 13) + ', ' + (255 - this.map[x][y].steps * 13) + ', 0)';
+			this.map[x][y].cell.style.backgroundColor = s === '' ? 'black' : hsl;
+		}
+		setTail(x, y, tail) {
+			this.map[x][y].tail = tail;
+
+			const s = this.map[x][y].steps !== null ? this.map[x][y].steps : '';
+			const t = tail !== null ? tail : '';
+			//this.map[x][y].cell.innerHTML = s + '-' + t;
+			const hsl = 'rgb(' + (this.map[x][y].steps * 13) + ', ' + (255 - this.map[x][y].steps * 13) + ', 0)';
+			this.map[x][y].cell.style.backgroundColor = s === '' ? 'black' : hsl;
+		}
+
+		clear() {
+			for (let i = 0; i < this.map.length; i++) {
+				for (let j = 0; j < this.map[i].length; j++) {
+					this.set(i, j, null, null, null, null);
+					this.setTail(i, j, 0);
+				}
+			}
+			const tail = this.game.tail;
+			this.set(tail[0].x, tail[0].y, 0);
+			this.head = this.map[tail[0].x][tail[0].y];
+			for (let i = 0; i < tail.length; i++) {
+				this.setTail(tail[i].x, tail[i].y, tail.length - i);
 			}
 		}
 	}
