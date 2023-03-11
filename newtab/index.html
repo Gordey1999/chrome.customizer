@@ -11,45 +11,70 @@
 <body>
     <div class="content js-glitch">
 
-        <div class="settings">
-            <div class="row row-theme">
-                <div class="row_label">theme:</div>
-
-                <div class="row_value">
-
-                    <div class="slider js-slider slider-small">
-                        <input type="hidden" class="js-colorscheme" value="0" data-max="360" data-step="2">
-                        <div class="slider_back"></div>
-                        <div class="slider_front">
-                            <div class="slider_front-inner"></div>
-                        </div>
-                        <div class="slider_area"></div>
+        <div class="left-panel">
+            <div class="left-panel_content">
+                <div class="snake_score">
+                    <div class="snake_score-row">
+                        <div class="snake_score-label">score:</div>
+                        <div class="snake_score-value"><div class="snake_score-value-inner">3<br>2<br>1<br>0</div></div>
+                        <input type="hidden" class="js-score" value="0">
                     </div>
-
+                    <div class="snake_score-row">
+                        <div class="snake_score-label">best:</div>
+                        <div class="snake_score-value"><div class="snake_score-value-inner">123</div></div>
+                        <input type="hidden" class="js-best" value="0">
+                    </div>
+                    <div class="snake_score-row">
+                        <div class="snake_score-label">bestAI:</div>
+                        <div class="snake_score-value"><div class="snake_score-value-inner">132</div></div>
+                        <input type="hidden" class="js-best-ai" value="0">
+                    </div>
                 </div>
             </div>
 
-            <div class="row row-theme">
-                <div class="row_label">brightness:</div>
 
-                <div class="row_value">
+            <div class="settings">
+                ----------------------------
+                <br>
+                <div class="row row-theme">
+                    <div class="row_label">theme:</div>
 
-                    <div class="slider js-slider slider-small">
-                        <input type="hidden" class="js-colorscheme-bright" value="50" data-max="100" data-step="2">
-                        <div class="slider_back"></div>
-                        <div class="slider_front">
-                            <div class="slider_front-inner"></div>
+                    <div class="row_value">
+
+                        <div class="slider js-slider slider-small">
+                            <input type="hidden" class="js-colorscheme" value="0" data-max="360" data-step="2">
+                            <div class="slider_back"></div>
+                            <div class="slider_front">
+                                <div class="slider_front-inner"></div>
+                            </div>
+                            <div class="slider_area"></div>
                         </div>
-                        <div class="slider_area"></div>
-                    </div>
 
+                    </div>
                 </div>
-            </div>
-            glitch:
-            <span class="button button-check js-checkbox">
+
+                <div class="row row-theme">
+                    <div class="row_label">brightness:</div>
+
+                    <div class="row_value">
+
+                        <div class="slider js-slider slider-small">
+                            <input type="hidden" class="js-colorscheme-bright" value="50" data-max="100" data-step="2">
+                            <div class="slider_back"></div>
+                            <div class="slider_front">
+                                <div class="slider_front-inner"></div>
+                            </div>
+                            <div class="slider_area"></div>
+                        </div>
+
+                    </div>
+                </div>
+                glitch:
+                <span class="button button-check js-checkbox">
                 <input type="hidden" class="js-checkbox-glitch" value="" data-on="on" data-off="off">
                 <span class="button-text"> off </span>
             </span>
+            </div>
         </div>
 
 

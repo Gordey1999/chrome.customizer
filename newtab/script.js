@@ -47,7 +47,7 @@
 	const classCell = 'snake_cell';
 	const classTail = 'snake_tail';
 	const classMeal = 'snake_meal';
-	const delay = 100;
+	const delay = 50;
 	class SnakeGame
 	{
 		constructor(element) {
@@ -72,6 +72,7 @@
 
 			const w = Math.floor(this.container.offsetWidth / cw);
 			const h = Math.floor(this.container.offsetHeight / ch);
+			this.pause = false;
 
 			this.el.style.width = w * cw + 'px';
 			this.el.style.height = h * ch + 'px';
@@ -119,6 +120,8 @@
 					this.newDir = 'down';
 					this.auto = false;
 					break;
+				case 'KeyP':
+					this.pause = !this.pause;
 			}
 
 			if (this.auto !== oldAuto && this.auto === false)
@@ -150,12 +153,21 @@
 			this.direction = 'up';
 			this.newDir = 'up';
 
+			this.path = this.ai.calculate();
+
 			this.timer = setInterval(this.cycle.bind(this), delay);
 		}
 
 		cycle() {
-			if (this.auto)
-				this.autoStep();
+			if (this.pause) {
+				return;
+			}
+			if (this.auto) {
+				if (this.path.length)
+					this.newDir = this.path.pop();
+				else
+					this.autoStep();
+			}
 
 			this.direction = this.newDir ?? this.direction;
 			const head = this.tail[0];
@@ -183,12 +195,15 @@
 				this.map[newX][newY].setPosition(mealPos.x, mealPos.y);
 				this.tail.push(new SnakeTail(this, tail.x, tail.y));
 
+				newHead.setPosition(newX, newY);
+				this.tail.unshift(newHead);
 
-				this.ai.makeMap();
+				this.path = this.ai.calculate();
 			}
-			newHead.setPosition(newX, newY);
-
-			this.tail.unshift(newHead);
+			else {
+				newHead.setPosition(newX, newY);
+				this.tail.unshift(newHead);
+			}
 		}
 
 		checkAlive(x, y) {
@@ -334,24 +349,53 @@
 
 				this.map[i] = [];
 				for (let j = 0; j < game.field.height; j++) {
-					const cell = document.createElement('div');
-					cell.classList.add('snake_dubug');
-					const pos = this.game.getCellPosition(i, j);
-					cell.style.top = pos.y + 'px';
-					cell.style.left = pos.x + 'px';
-					this.game.el.append(cell);
+					// const cell = document.createElement('div');
+					// cell.classList.add('snake_dubug');
+					// const pos = this.game.getCellPosition(i, j);
+					// cell.style.top = pos.y + 'px';
+					// cell.style.left = pos.x + 'px';
+					// this.game.el.append(cell);
 
 					this.map[i].push({
 						steps: null,
 						rotates: 0,
 						dir: null,
-						cell: cell,
+						//cell: cell,
 						tail: null,
 						x: i,
 						y: j,
 					});
 				}
 			}
+		}
+
+		calculate() {
+			let cell = this.makeMap();
+			if (!cell) {
+				return false;
+			}
+			const path = [];
+
+			for (let i = cell.steps; i > 0; i--) {
+				path.push(cell.dir);
+				switch (cell.dir) {
+					case 'left':
+						cell = this.map[cell.x + 1][cell.y];
+						break;
+					case 'right':
+						cell = this.map[cell.x - 1][cell.y];
+						break;
+					case 'up':
+						cell = this.map[cell.x][cell.y + 1];
+						break;
+					case 'down':
+						cell = this.map[cell.x][cell.y - 1];
+						break;
+				}
+			}
+			//path.reverse();
+
+			return path;
 		}
 
 		makeMap() {
@@ -374,8 +418,8 @@
 				for (let i = 0; i < count; i++) {
 					const cell = arr[i];
 					if (this.game.map[cell.x][cell.y] instanceof SnakeMeal) {
-						found = true;
-						break;
+						this.calcCell(cell, arr2, count2);
+						return cell;
 					}
 					count2 = this.calcCell(cell, arr2, count2);
 				}
@@ -387,7 +431,7 @@
 				step++;
 			}
 
-			debugger;
+			return null;
 		}
 
 		calcCell(current, arr, count) {
@@ -424,6 +468,27 @@
 				count++;
 			}
 
+			current.rotates = 500;
+			if (left && left.steps - current.steps === -1 && left.rotates < current.rotates) {
+				this.set(i, j, current.steps,
+					left.dir === 'right' ? left.rotates : left.rotates + 1, 'right');
+			}
+			if (right && right.steps - current.steps === -1 && right.rotates < current.rotates) {
+				this.set(i, j, current.steps,
+					right.dir === 'left' ? right.rotates : right.rotates + 1, 'left');
+			}
+			if (top && top.steps - current.steps === -1 && top.rotates < current.rotates) {
+				this.set(i, j, current.steps,
+					top.dir === 'down' ? top.rotates : top.rotates + 1, 'down');
+			}
+			if (bottom && bottom.steps - current.steps === -1 && bottom.rotates < current.rotates) {
+				this.set(i, j, current.steps,
+					bottom.dir === 'up' ? bottom.rotates : bottom.rotates + 1, 'up');
+			}
+			if (current.rotates === 500) {
+				this.set(i, j, current.steps, 0, this.game.direction);
+			}
+
 			return count;
 		}
 
@@ -432,32 +497,33 @@
 			this.map[x][y].rotates = rotates;
 			this.map[x][y].dir = dir;
 
-			const s = steps !== null ? steps : '';
-			const t = this.map[x][y].tail !== null ? this.map[x][y].tail : '';
-			//this.map[x][y].cell.innerHTML = s + '-' + t;
-			//this.map[x][y].cell.innerHTML = t;
-			const hsl = 'rgb(' + (this.map[x][y].steps * 13) + ', ' + (255 - this.map[x][y].steps * 13) + ', 0)';
-			this.map[x][y].cell.style.backgroundColor = s === '' ? 'black' : hsl;
+			// const s = steps !== null ? steps : '';
+			// const t = this.map[x][y].rotates !== null ? this.map[x][y].rotates : '';
+			// //this.map[x][y].cell.innerHTML = s + '-' + t;
+			// const d = dir !== null ? dir[0] : '';
+			// this.map[x][y].cell.innerHTML = s + '<br>' + t + d;
+			// const hsl = 'rgb(' + (this.map[x][y].steps * 13) + ', ' + (255 - this.map[x][y].steps * 13) + ', 0)';
+			// this.map[x][y].cell.style.backgroundColor = s === '' ? 'black' : hsl;
 		}
 		setTail(x, y, tail) {
 			this.map[x][y].tail = tail;
 
-			const s = this.map[x][y].steps !== null ? this.map[x][y].steps : '';
-			const t = tail !== null ? tail : '';
-			//this.map[x][y].cell.innerHTML = s + '-' + t;
-			const hsl = 'rgb(' + (this.map[x][y].steps * 13) + ', ' + (255 - this.map[x][y].steps * 13) + ', 0)';
-			this.map[x][y].cell.style.backgroundColor = s === '' ? 'black' : hsl;
+			// const s = this.map[x][y].steps !== null ? this.map[x][y].steps : '';
+			// const t = tail !== null ? tail : '';
+			// //this.map[x][y].cell.innerHTML = s + '-' + t;
+			// const hsl = 'rgb(' + (this.map[x][y].steps * 13) + ', ' + (255 - this.map[x][y].steps * 13) + ', 0)';
+			// this.map[x][y].cell.style.backgroundColor = s === '' ? 'black' : hsl;
 		}
 
 		clear() {
 			for (let i = 0; i < this.map.length; i++) {
 				for (let j = 0; j < this.map[i].length; j++) {
-					this.set(i, j, null, null, null, null);
+					this.set(i, j, null, 500, null, null);
 					this.setTail(i, j, 0);
 				}
 			}
 			const tail = this.game.tail;
-			this.set(tail[0].x, tail[0].y, 0);
+			this.set(tail[0].x, tail[0].y, 0, 0, this.game.direction);
 			this.head = this.map[tail[0].x][tail[0].y];
 			for (let i = 0; i < tail.length; i++) {
 				this.setTail(tail[i].x, tail[i].y, tail.length - i);

@@ -24,12 +24,6 @@ body {
     box-sizing: border-box;
 }
 
-.settings {
-    width: 400px;
-    height: 100%;
-    margin-right: 20px;
-}
-
 .glitch {
     position: absolute;
     left: 0;
@@ -39,13 +33,33 @@ body {
     z-index: -100;
 }
 
+
+
+.left-panel {
+    width: 350px;
+    height: 100%;
+    margin-right: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings {
+    width: 100%;
+    left: 0;
+    bottom: 0;
+}
+
+.snake-score {
+    height: 100%;
+}
+
 ::-webkit-scrollbar {
     width: 0;
     height: 0;
 }
 
 .row-theme {
-    max-width: 300px;
+    width: 100%;
 }
 
 .snake-container {
@@ -57,6 +71,7 @@ body {
 	position: relative;
 	width: 100%;
 	height: 100%;
+    box-sizing: border-box;
 }
 .snake.active {
     border: 2px solid var(--color-main);
@@ -84,13 +99,37 @@ body {
 
 .snake_dubug {
 	position: absolute;
-	margin-left: 0;
-	margin-top: 0;
+	/*padding: 3px;*/
 	z-index: 500;
-	font-size: 10px;
-	color: white;
-	line-height: 5px;
-	background: black;
-	width: 8px;
-	height: 8px;
+	font-size: 12px;
+	color: black;
+    line-height: 11px;
+    background: black;
+    font-weight: bold;
+	width: 12px;
+	height: 20px;
+}
+
+.left-panel_content {
+    height: 100%;
+}
+
+.snake_score {
+    line-height: 1.5em;
+}
+
+.snake_score-row {
+    width: 150px;
+    display: flex;
+    align-items: center;
+}
+.snake_score-label {
+    width: 70px;
+}
+.snake_score-value {
+    width: 50px;
+    text-align: end;
+    line-height: 1em;
+    height: 1em;
+    overflow: hidden;
 }

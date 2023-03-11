@@ -273,10 +273,10 @@
         document.querySelector('body').style.setProperty('--color-main', hsl);
     }
 
-    window.triggerGlitch = function() {
+    window.triggerGlitch = function(short = false) {
         if (glitchObj)
         {
-            glitchObj.create();
+            glitchObj.create(short);
         }
     }
 

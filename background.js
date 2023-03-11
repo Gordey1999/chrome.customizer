@@ -10,7 +10,7 @@
     };
 
     /* save images in images/ and name them like 1.png, 2.png ... [imagesCount].png. Only png)) */
-    const imagesCount = 21;
+    const imagesCount = 64;
     console.log(imagesCount);
 
     chrome.storage.local.get(Object.keys(settings)).then((result) => {
