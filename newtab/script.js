@@ -541,13 +541,16 @@
 			if (tail.tailDir === this.getOppositeDirection(current.dir)) {
 				return;
 			}
-			if (tail.x - current.x === 1 && current.steps - this.map[current.x - 1][current.y].steps === 1) {
+			const x = current.x;
+			const y = current.y;
+
+			if (x > 0 && tail.x - x === 1 && current.steps - this.map[x - 1][y].steps === 1) {
 				current.dir = 'right';
-			} else if (tail.x - current.x === -1 && current.steps - this.map[current.x + 1][current.y].steps === 1) {
+			} else if (x < this.map.length - 1 && tail.x - x === -1 && current.steps - this.map[x + 1][y].steps === 1) {
 				current.dir = 'left';
-			} else if (tail.y - current.y === 1 && current.steps - this.map[current.x][current.y - 1].steps === 1) {
+			} else if (y > 0 &&  tail.y - y === 1 && current.steps - this.map[x][y - 1].steps === 1) {
 				current.dir = 'down';
-			} else if (tail.y - current.y === -1 && current.steps - this.map[current.x][current.y + 1].steps === 1) {
+			} else if (y < this.map[0].length - 1 && tail.y - y === -1 && current.steps - this.map[x][y + 1].steps === 1) {
 				current.dir = 'top';
 			}
 		}
