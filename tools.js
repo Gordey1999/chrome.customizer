@@ -184,8 +184,8 @@
         bind() {
             this.el.addEventListener('mousedown', this.onMousedown.bind(this));
 
-            this.el.querySelectorAll('input').forEach(() => {
-                addEventListener('input', this.onInput.bind(this))
+            this.el.querySelectorAll('input:not(.hidden)').forEach(e => {
+                e.addEventListener('input', this.onInput.bind(this))
             })
         }
 

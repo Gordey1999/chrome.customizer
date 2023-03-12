@@ -47,7 +47,6 @@
 	const classCell = 'snake_cell';
 	const classTail = 'snake_tail';
 	const classMeal = 'snake_meal';
-	const delay = 50;
 	class SnakeGame
 	{
 		constructor(element) {
@@ -79,6 +78,8 @@
 			//this.el.style.marginTop = (this.container.offsetWidth % cw) / 2 + 'px';
 			//this.el.style.marginLeft = (this.container.offsetHeight % ch) / 2 + 'px';
 
+			this.delay = 50;
+
 			this.field = {
 				width: w,
 				height: h,
@@ -88,6 +89,10 @@
 						cellHeight: ch
 					}
 			};
+
+			this.inputScore = document.querySelector('.js-snake-score');
+			this.inputBest = document.querySelector('.js-snake-best');
+			this.inputBestAi = document.querySelector('.js-snake-best-ai');
 
 			this.ai = new SnakeAI(this);
 		}
@@ -120,12 +125,29 @@
 					this.newDir = 'down';
 					this.auto = false;
 					break;
-				case 'KeyP':
+				case 'Space':
 					this.pause = !this.pause;
+					break;
+				case 'Digit1': this.cycleDelay(100); break;
+				case 'Digit2': this.cycleDelay(70); break;
+				case 'Digit3': this.cycleDelay(50); break;
+				case 'Digit4': this.cycleDelay(30); break;
+				case 'Digit5': this.cycleDelay(10); break;
+				case 'Digit6': this.cycleDelay(0); break;
+				case 'Digit0': this.ai.toggleDebug();
 			}
 
 			if (this.auto !== oldAuto && this.auto === false)
 				this.el.classList.add('active');
+		}
+
+		cycleDelay(delay = null) {
+			this.delay = delay;
+
+			if (this.timer)
+				clearInterval(this.timer);
+
+			this.timer = setInterval(this.cycle.bind(this), this.delay);
 		}
 
 		newGame() {
@@ -155,7 +177,9 @@
 
 			this.path = this.ai.calculate();
 
-			this.timer = setInterval(this.cycle.bind(this), delay);
+			this.setScore(0);
+
+			this.cycleDelay(this.delay);
 		}
 
 		cycle() {
@@ -184,6 +208,7 @@
 			}
 
 			if (!this.checkAlive(newX, newY)) {
+				tail.remove();
 				this.stop();
 				return;
 			}
@@ -198,11 +223,30 @@
 				newHead.setPosition(newX, newY);
 				this.tail.unshift(newHead);
 
-				this.path = this.ai.calculate();
+				this.setScore(parseInt(this.inputScore.value) + 1);
+
+				if (this.auto) {
+					this.path = this.ai.calculate();
+				}
 			}
 			else {
 				newHead.setPosition(newX, newY);
 				this.tail.unshift(newHead);
+			}
+		}
+
+		setScore(score) {
+			this.inputScore.value = score;
+			triggerEvent(this.inputScore, 'input');
+
+			if (!this.auto && score > this.inputBest.value) {
+				this.inputBest.value = score;
+				triggerEvent(this.inputBest, 'input');
+			}
+
+			if (this.auto && score > this.inputBestAi.value) {
+				this.inputBestAi.value = score;
+				triggerEvent(this.inputBestAi, 'input');
 			}
 		}
 
@@ -345,22 +389,16 @@
 		constructor(game) {
 			this.game = game;
 			this.map = [];
+			this.debug = false;
 			for (let i = 0; i < game.field.width; i++) {
 
 				this.map[i] = [];
 				for (let j = 0; j < game.field.height; j++) {
-					// const cell = document.createElement('div');
-					// cell.classList.add('snake_dubug');
-					// const pos = this.game.getCellPosition(i, j);
-					// cell.style.top = pos.y + 'px';
-					// cell.style.left = pos.x + 'px';
-					// this.game.el.append(cell);
 
 					this.map[i].push({
 						steps: null,
 						rotates: 0,
 						dir: null,
-						//cell: cell,
 						tail: null,
 						x: i,
 						y: j,
@@ -375,6 +413,8 @@
 				return false;
 			}
 			const path = [];
+
+			this.avoidLoop(cell);
 
 			for (let i = cell.steps; i > 0; i--) {
 				path.push(cell.dir);
@@ -492,27 +532,67 @@
 			return count;
 		}
 
+		avoidLoop(current) {
+			const tail = this.getNearTail(current.x, current.y, current.dir);
+			if (tail === null) {
+				return;
+			}
+
+			if (tail.tailDir === this.getOppositeDirection(current.dir)) {
+				return;
+			}
+			if (tail.x - current.x === 1 && current.steps - this.map[current.x - 1][current.y].steps === 1) {
+				current.dir = 'right';
+			} else if (tail.x - current.x === -1 && current.steps - this.map[current.x + 1][current.y].steps === 1) {
+				current.dir = 'left';
+			} else if (tail.y - current.y === 1 && current.steps - this.map[current.x][current.y - 1].steps === 1) {
+				current.dir = 'down';
+			} else if (tail.y - current.y === -1 && current.steps - this.map[current.x][current.y + 1].steps === 1) {
+				current.dir = 'top';
+			}
+		}
+
+		getOppositeDirection(dir) {
+			switch (dir) {
+				case 'up': return 'down';
+				case 'down': return 'up';
+				case 'left': return 'right';
+				case 'right': return 'left';
+			}
+		}
+
+		getNearTail(x, y, dir) {
+			if (x > 0 && this.map[x - 1][y].tail > this.map[x][y].steps && dir !== 'left' && this.map[x - 1][y].tail !== 0) {
+				return this.map[x - 1][y];
+			}
+			if (x < this.map.length - 1 && this.map[x + 1][y].tail > this.map[x][y].steps && dir !== 'right' && this.map[x + 1][y].tail !== 0) {
+				return this.map[x + 1][y];
+			}
+			if (y > 0 && this.map[x][y - 1].tail > this.map[x][y].steps && dir !== 'up' && this.map[x][y - 1].tail !== 0) {
+				return this.map[x][y - 1];
+			}
+			if (y < this.map[0].length - 1 && this.map[x][y + 1].tail > this.map[x][y].steps && dir !== 'down' && this.map[x][y + 1].tail !== 0) {
+				return this.map[x][y + 1];
+			}
+			return null;
+		}
+
 		set(x, y, steps = null, rotates = null, dir = null) {
 			this.map[x][y].steps = steps;
 			this.map[x][y].rotates = rotates;
 			this.map[x][y].dir = dir;
 
-			// const s = steps !== null ? steps : '';
-			// const t = this.map[x][y].rotates !== null ? this.map[x][y].rotates : '';
-			// //this.map[x][y].cell.innerHTML = s + '-' + t;
-			// const d = dir !== null ? dir[0] : '';
-			// this.map[x][y].cell.innerHTML = s + '<br>' + t + d;
-			// const hsl = 'rgb(' + (this.map[x][y].steps * 13) + ', ' + (255 - this.map[x][y].steps * 13) + ', 0)';
-			// this.map[x][y].cell.style.backgroundColor = s === '' ? 'black' : hsl;
+			if (this.debug) {
+				const s = steps !== null ? steps : '';
+				const t = this.map[x][y].rotates !== null ? this.map[x][y].rotates : '';
+				const d = dir !== null ? dir[0] : '';
+				this.map[x][y].debug.innerHTML = s + '<br>' + t + d;
+				const hsl = 'rgb(' + (this.map[x][y].steps * 13) + ', ' + (255 - this.map[x][y].steps * 13) + ', 0)';
+				this.map[x][y].debug.style.backgroundColor = s === '' ? 'black' : hsl;
+			}
 		}
 		setTail(x, y, tail) {
 			this.map[x][y].tail = tail;
-
-			// const s = this.map[x][y].steps !== null ? this.map[x][y].steps : '';
-			// const t = tail !== null ? tail : '';
-			// //this.map[x][y].cell.innerHTML = s + '-' + t;
-			// const hsl = 'rgb(' + (this.map[x][y].steps * 13) + ', ' + (255 - this.map[x][y].steps * 13) + ', 0)';
-			// this.map[x][y].cell.style.backgroundColor = s === '' ? 'black' : hsl;
 		}
 
 		clear() {
@@ -525,9 +605,55 @@
 			const tail = this.game.tail;
 			this.set(tail[0].x, tail[0].y, 0, 0, this.game.direction);
 			this.head = this.map[tail[0].x][tail[0].y];
+
 			for (let i = 0; i < tail.length; i++) {
 				this.setTail(tail[i].x, tail[i].y, tail.length - i);
+
+				if (i === 0) {
+					this.map[tail[i].x][tail[i].y].tailDir = this.game.direction;
+				} else {
+					if (tail[i-1].x - tail[i].x === -1) {
+						this.map[tail[i].x][tail[i].y].tailDir = 'left';
+					} else if (tail[i-1].x - tail[i].x === 1) {
+						this.map[tail[i].x][tail[i].y].tailDir = 'right';
+					} else if (tail[i-1].y - tail[i].y === -1) {
+						this.map[tail[i].x][tail[i].y].tailDir = 'up';
+					} else if (tail[i-1].y - tail[i].y === 1) {
+						this.map[tail[i].x][tail[i].y].tailDir = 'down';
+					}
+				}
 			}
+		}
+
+		showDebug() {
+			this.debug = true;
+			const game = this.game;
+			for (let i = 0; i < game.field.width; i++) {
+				for (let j = 0; j < game.field.height; j++) {
+
+					const cell = document.createElement('div');
+					cell.classList.add('snake_dubug');
+					const pos = game.getCellPosition(i, j);
+					cell.style.top = pos.y + 'px';
+					cell.style.left = pos.x + 'px';
+					game.el.append(cell);
+
+					this.map[i][j].debug = cell;
+				}
+			}
+		}
+		hideDebug() {
+			this.debug = false;
+			const game = this.game;
+			for (let i = 0; i < game.field.width; i++) {
+				for (let j = 0; j < game.field.height; j++) {
+					this.map[i][j].debug.remove();
+				}
+			}
+		}
+		toggleDebug() {
+			if (this.debug) this.hideDebug();
+			else this.showDebug()
 		}
 	}
 
@@ -603,4 +729,74 @@
 
 	new SnakeGame(document.querySelector('.snake'));
 
+})();
+
+(function() {
+	class Score {
+		constructor(element) {
+			this.el = element;
+			this.input = element.querySelector('input');
+
+			this.digits = [];
+
+			for (let i = 0; i < 3; i++) {
+				const d = document.createElement('div');
+				d.classList.add('snake_score-value-inner');
+				let html = '';
+				if (i > 0) {
+					for (let j = 0; j < Math.pow(10, i) - 1; j++)
+						html += ' 9 8 7 6 5 4 3 2 1 0 ';
+				}
+
+				html += ' 9 8 7 6 5 4 3 2 1 ';
+				if (i === 2) {
+					html += '0';
+				}
+				d.innerHTML = html;
+				this.el.append(d);
+
+				this.digits.unshift(d);
+			}
+
+			this.render();
+			this.bind();
+		}
+
+		bind() {
+			this.input.addEventListener('input', this.onInput.bind(this));
+		}
+
+		onInput(e) {
+			this.render();
+		}
+
+		render() {
+			const value = this.input.value;
+
+			for (let i = 0; i < this.digits.length; i++) {
+				const a = i > 0 ? Math.floor(value / (Math.pow(10, i))) : parseInt(value);
+				//const d = a % 10;
+
+				this.digits[i].style.marginTop = -Math.pow(10, 3 - i) + 1 + a + 'em';
+
+			}
+			// if (this.input.value) {
+			// 	this.text.innerHTML = this.input.dataset.on;
+			// 	this.el.classList.add('active');
+			// } else {
+			// 	this.text.innerHTML = this.input.dataset.off;
+			// 	this.el.classList.remove('active');
+			// }
+		}
+		setValue(value) {
+			const changed = Boolean(this.input.value) !== value;
+			this.input.value = value ? 1 : '';
+			if (changed)
+				triggerEvent(this.input, 'input');
+		}
+	}
+
+	document.querySelectorAll('.js-score').forEach(function(el) {
+		new Score(el);
+	});
 })();

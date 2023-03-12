@@ -127,9 +127,15 @@ body {
     width: 70px;
 }
 .snake_score-value {
-    width: 50px;
+    width: 40px;
     text-align: end;
     line-height: 1em;
     height: 1em;
     overflow: hidden;
+    display: flex;
+}
+.snake_score-value-inner {
+    margin-top: 0;
+    transition: margin 1s;
+    width: 10px;
 }
