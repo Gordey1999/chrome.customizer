@@ -213,11 +213,11 @@
 
         repeat() {
             this.create();
-            return;
-            setTimeout(this.repeat.bind(this), this.rand(20000));
+            //setTimeout(this.repeat.bind(this), this.rand(20000));
         }
 
         move() {
+            debugger;
             const distance = this.step * 2;
 
             this.glitch.style.top = this.rand(distance * 2) - distance + 'px';
@@ -227,7 +227,7 @@
 
             const v = this.short ? 0.3 : 0.1;
 
-            const again = Math.random() > (v * this.step);
+            const again = this.short ? (Math.random() > (v * this.step)) : this.step < 6;
             if (again)
                 setTimeout(this.move.bind(this), this.rand(this.delay));
             else
