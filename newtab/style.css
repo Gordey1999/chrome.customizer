@@ -36,7 +36,7 @@ body {
 
 
 .left-panel {
-    width: 350px;
+    width: 315px;
     height: 100%;
     margin-right: 20px;
     display: flex;
@@ -116,18 +116,18 @@ body {
 
 .snake_score {
     line-height: 1.5em;
+	float: right;
 }
 
 .snake_score-row {
-    width: 150px;
     display: flex;
     align-items: center;
+
 }
 .snake_score-label {
     width: 70px;
 }
 .snake_score-value {
-    width: 40px;
     text-align: end;
     line-height: 1em;
     height: 1em;
@@ -138,4 +138,8 @@ body {
     margin-top: 0;
     transition: margin 1s;
     width: 10px;
+}
+
+.links {
+	clear: both;
 }

@@ -89,3 +89,15 @@ body {
     background: var(--color-main);
     color: black;
 }
+
+.link {
+	color: var(--color-main);
+	text-decoration: none;
+	padding: 0 12.37px;
+}
+
+.link:hover {
+	background: var(--color-main);
+	color: black;
+	cursor: pointer;
+}
