@@ -278,6 +278,7 @@
 				return false;
 			}
 			if (this.map[x][y] instanceof SnakeTail) {
+				this.tail[0].setDirection(this.direction);
 				return false;
 			}
 
