@@ -217,7 +217,6 @@
         }
 
         move() {
-            debugger;
             const distance = this.step * 2;
 
             this.glitch.style.top = this.rand(distance * 2) - distance + 'px';
