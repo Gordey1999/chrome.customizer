@@ -160,6 +160,7 @@
 
 			for (let i = 0; i < 3; i++) {
 				this.tail.push(new SnakeTail(this, cx, cy + i));
+				this.tail[i].setDirection(this.getTailDirection(i));
 				//this.map[cx][cy + i] = true;
 			}
 
@@ -218,10 +219,15 @@
 			if (this.map[newX][newY] instanceof SnakeMeal) {
 				const mealPos = this.getNewMealPosition();
 				this.map[newX][newY].setPosition(mealPos.x, mealPos.y);
-				this.tail.push(new SnakeTail(this, tail.x, tail.y));
+
+				const newTail = new SnakeTail(this, tail.x, tail.y);
+				this.tail.push(newTail);
+				newTail.setDirection(this.getTailDirection(this.tail.length - 1));
 
 				newHead.setPosition(newX, newY);
 				this.tail.unshift(newHead);
+				newHead.setDirection('head');
+				this.tail[1].setDirection(this.getTailDirection(1));
 
 				this.setScore(parseInt(this.inputScore.value) + 1);
 
@@ -232,7 +238,24 @@
 			else {
 				newHead.setPosition(newX, newY);
 				this.tail.unshift(newHead);
+				newHead.setDirection('head');
+				this.tail[1].setDirection(this.getTailDirection(1));
 			}
+		}
+
+		getTailDirection(index) {
+			if (index === 0) {
+				return 'head';
+			}
+			if (this.tail[index].x - this.tail[index - 1].x === 1)
+				return 'left';
+			if (this.tail[index].x - this.tail[index - 1].x === -1)
+				return 'right';
+			if (this.tail[index].y - this.tail[index - 1].y === 1)
+				return 'up';
+			if (this.tail[index].y - this.tail[index - 1].y === -1)
+				return 'down';
+
 		}
 
 		setScore(score) {
@@ -414,8 +437,6 @@
 			}
 			const path = [];
 
-			this.avoidLoop(cell);
-
 			for (let i = cell.steps; i > 0; i--) {
 				path.push(cell.dir);
 				switch (cell.dir) {
@@ -532,54 +553,6 @@
 			return count;
 		}
 
-		avoidLoop(current) {
-			const tail = this.getNearTail(current.x, current.y, current.dir);
-			if (tail === null) {
-				return;
-			}
-
-			if (tail.tailDir === this.getOppositeDirection(current.dir)) {
-				return;
-			}
-			const x = current.x;
-			const y = current.y;
-
-			if (x > 0 && tail.x - x === 1 && current.steps - this.map[x - 1][y].steps === 1) {
-				current.dir = 'right';
-			} else if (x < this.map.length - 1 && tail.x - x === -1 && current.steps - this.map[x + 1][y].steps === 1) {
-				current.dir = 'left';
-			} else if (y > 0 &&  tail.y - y === 1 && current.steps - this.map[x][y - 1].steps === 1) {
-				current.dir = 'down';
-			} else if (y < this.map[0].length - 1 && tail.y - y === -1 && current.steps - this.map[x][y + 1].steps === 1) {
-				current.dir = 'top';
-			}
-		}
-
-		getOppositeDirection(dir) {
-			switch (dir) {
-				case 'up': return 'down';
-				case 'down': return 'up';
-				case 'left': return 'right';
-				case 'right': return 'left';
-			}
-		}
-
-		getNearTail(x, y, dir) {
-			if (x > 0 && this.map[x - 1][y].tail > this.map[x][y].steps && dir !== 'left' && this.map[x - 1][y].tail !== 0) {
-				return this.map[x - 1][y];
-			}
-			if (x < this.map.length - 1 && this.map[x + 1][y].tail > this.map[x][y].steps && dir !== 'right' && this.map[x + 1][y].tail !== 0) {
-				return this.map[x + 1][y];
-			}
-			if (y > 0 && this.map[x][y - 1].tail > this.map[x][y].steps && dir !== 'up' && this.map[x][y - 1].tail !== 0) {
-				return this.map[x][y - 1];
-			}
-			if (y < this.map[0].length - 1 && this.map[x][y + 1].tail > this.map[x][y].steps && dir !== 'down' && this.map[x][y + 1].tail !== 0) {
-				return this.map[x][y + 1];
-			}
-			return null;
-		}
-
 		set(x, y, steps = null, rotates = null, dir = null) {
 			this.map[x][y].steps = steps;
 			this.map[x][y].rotates = rotates;
@@ -611,20 +584,6 @@
 
 			for (let i = 0; i < tail.length; i++) {
 				this.setTail(tail[i].x, tail[i].y, tail.length - i);
-
-				if (i === 0) {
-					this.map[tail[i].x][tail[i].y].tailDir = this.game.direction;
-				} else {
-					if (tail[i-1].x - tail[i].x === -1) {
-						this.map[tail[i].x][tail[i].y].tailDir = 'left';
-					} else if (tail[i-1].x - tail[i].x === 1) {
-						this.map[tail[i].x][tail[i].y].tailDir = 'right';
-					} else if (tail[i-1].y - tail[i].y === -1) {
-						this.map[tail[i].x][tail[i].y].tailDir = 'up';
-					} else if (tail[i-1].y - tail[i].y === 1) {
-						this.map[tail[i].x][tail[i].y].tailDir = 'down';
-					}
-				}
 			}
 		}
 
@@ -711,6 +670,15 @@
 			this.el.classList.add(classTail);
 
 			this.cell.append(this.el);
+		}
+
+		setDirection(dir) {
+			this.el.classList.remove('up');
+			this.el.classList.remove('down');
+			this.el.classList.remove('left');
+			this.el.classList.remove('right');
+			this.el.classList.remove('head');
+			this.el.classList.add(dir);
 		}
 	}
 
