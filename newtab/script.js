@@ -106,23 +106,19 @@
 
 			switch (e.code) {
 				case 'KeyA':
-					if (this.direction === 'right') break;
-					this.newDir = 'left';
+					this.keyQueue.push('left');
 					this.auto = false;
 					break;
 				case 'KeyW':
-					if (this.direction === 'down') break;
-					this.newDir = 'up';
+					this.keyQueue.push('up');
 					this.auto = false;
 					break;
 				case 'KeyD':
-					if (this.direction === 'left') break;
-					this.newDir = 'right';
+					this.keyQueue.push('right');
 					this.auto = false;
 					break;
 				case 'KeyS':
-					if (this.direction === 'up') break;
-					this.newDir = 'down';
+					this.keyQueue.push('down');
 					this.auto = false;
 					break;
 				case 'Space':
@@ -139,6 +135,21 @@
 
 			if (this.auto !== oldAuto && this.auto === false)
 				this.el.classList.add('active');
+		}
+
+		getKeyDirection() {
+			if (this.keyQueue.length === 0) return;
+
+			const key = this.keyQueue.shift();
+
+			if (key === 'left' && this.direction === 'right'
+				|| key === 'right' && this.direction === 'left'
+				|| key === 'up' && this.direction === 'down'
+				|| key === 'down' && this.direction === 'up') {
+
+				return;
+			}
+			this.direction = key;
 		}
 
 		cycleDelay(delay = null) {
@@ -174,7 +185,7 @@
 			}
 
 			this.direction = 'up';
-			this.newDir = 'up';
+			this.keyQueue = [];
 
 			this.path = this.ai.calculate();
 
@@ -189,12 +200,13 @@
 			}
 			if (this.auto) {
 				if (this.path.length)
-					this.newDir = this.path.pop();
+					this.direction = this.path.pop();
 				else
 					this.autoStep();
+			} else {
+				this.getKeyDirection();
 			}
 
-			this.direction = this.newDir ?? this.direction;
 			const head = this.tail[0];
 			const tail = this.tail.pop();
 
@@ -329,53 +341,53 @@
 			switch (this.direction) {
 				case 'up':
 					if (minY < 0)
-						this.newDir = 'up';
+						this.direction = 'up';
 					else if (minX < 0)
-						this.newDir = 'left';
+						this.direction = 'left';
 					else
-						this.newDir = 'right';
+						this.direction = 'right';
 					break;
 				case 'down':
 					if (minY > 0)
-						this.newDir = 'down';
+						this.direction = 'down';
 					else if (minX < 0)
-						this.newDir = 'left';
+						this.direction = 'left';
 					else
-						this.newDir = 'right';
+						this.direction = 'right';
 					break;
 				case 'left':
 					if (minX < 0)
-						this.newDir = 'left';
+						this.direction = 'left';
 					else if (minY < 0)
-						this.newDir = 'up';
+						this.direction = 'up';
 					else
-						this.newDir = 'down';
+						this.direction = 'down';
 					break;
 				case 'right':
 					if (minX > 0)
-						this.newDir = 'right';
+						this.direction = 'right';
 					else if (minY < 0)
-						this.newDir = 'up';
+						this.direction = 'up';
 					else
-						this.newDir = 'down';
+						this.direction = 'down';
 					break;
 			}
 
-			if (this.bodyForward(this.newDir) === 1) {
-				this.newDir = 'up';
+			if (this.bodyForward(this.direction) === 1) {
+				this.direction = 'up';
 				let max = this.bodyForward('up');
 
 				if (this.bodyForward('down') > max) {
 					max = this.bodyForward('down');
-					this.newDir = 'down';
+					this.direction = 'down';
 				}
 				if (this.bodyForward('left') > max) {
 					max = this.bodyForward('left');
-					this.newDir = 'left';
+					this.direction = 'left';
 				}
 				if (this.bodyForward('right') > max) {
-					max = this.bodyForward('right');
-					this.newDir = 'right';
+					this.bodyForward('right');
+					this.direction = 'right';
 				}
 			}
 		}
@@ -738,7 +750,7 @@
 			this.input.addEventListener('input', this.onInput.bind(this));
 		}
 
-		onInput(e) {
+		onInput() {
 			this.render();
 		}
 
