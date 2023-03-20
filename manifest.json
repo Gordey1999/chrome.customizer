@@ -16,6 +16,11 @@
       "matches": ["file:///*", "https://music.yandex.ru/*"],
       "css": ["ymusic/style.css"],
       "js": ["ymusic/script.js"]
+    },
+    {
+      "matches": ["https://manga.example.com/*"],
+      "css": ["manga/style.css"],
+      "js": ["manga/script.js"]
     }
   ],
   "web_accessible_resources": [

@@ -1,0 +1,120 @@
+body {
+    --color-fav: rgb(0, 255, 0);
+}
+
+
+.favorites__container {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    color: var(--color-fav);
+    font-family: monospace;
+    display: flex;
+    width: 400px;
+    flex-wrap: wrap;
+}
+
+.favorites__button, .favorites__group-btn {
+    background: black;
+    height: auto;
+    width: auto;
+    padding: 5px 10px;
+    cursor: pointer;
+    flex-grow: 1;
+}
+
+.favorites__container .favorites__group-btn {
+    display: none;
+}
+.favorites__container.active .favorites__group-btn {
+    display: block;
+}
+.favorites__container .favorites__button {
+    flex-grow: 0;
+}
+.favorites__container.active .favorites__button {
+    flex-grow: 1;
+}
+
+.favorites__button:hover, .favorites__group-btn:hover {
+    color: black;
+    background-color: var(--color-fav);
+}
+
+.favorites__group-btn.active {
+    color: black;
+    background-color: var(--color-fav);
+}
+
+.favorites__body {
+    height: 741px;
+    width: 400px;
+    background: black;
+    display: none;
+}
+
+.favorites__container.active .favorites__body {
+    display: block;
+}
+
+.favorites__group {
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: flex-start;
+    padding: 10px 0 10px 10px;
+}
+.favorites__group.active {
+    display: flex;
+}
+
+.favorites__group a {
+    color: var(--color-fav);
+    transition: none;
+    width: calc(25% - 10px);
+    margin-right: 10px;
+    margin-bottom: 10px;
+    height: min-content;
+}
+
+.favorites__group a:hover {
+    color: black;
+    background-color: var(--color-fav);
+    transition: none;
+}
+
+
+
+
+
+.favorites__add-buttons {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.favorites__add-button {
+    background: black;
+    cursor: pointer;
+    padding: 5px 10px;
+    color: var(--color-fav);
+}
+.favorites__add-button:hover {
+    color: black;
+    background-color: var(--color-fav);
+}
+.favorites__add-button.active {
+    color: black;
+    background-color: var(--color-fav);
+}
+
+.listupd a.downloaded .tt {
+    color: #53ff53;
+}
+.listupd a.like .tt {
+    color: #ffff74;
+}
+.listupd a.dislike .tt {
+    color: #ff7474;
+}
