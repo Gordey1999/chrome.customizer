@@ -8,7 +8,8 @@
 
     let settings = {
         theme: 170,
-        themeBright: 50
+        themeBright: 50,
+		glitch: true
     }
 
     inputTheme.addEventListener('input', function() {
@@ -27,18 +28,25 @@
     function updateTheme() {
         setTheme(settings.theme, settings.themeBright, settings.glitch);
 
-        chrome.runtime.sendMessage({ action: 'customizerSaveSettings', settings: settings });
+        chrome.runtime.sendMessage({ action: 'saveSettings', settings: settings });
     }
 
-    chrome.runtime.sendMessage({ action: 'customizerInitNewTab' }, function(response) {
-        inputTheme.value = response.settings.theme;
-        inputThemeBright.value = response.settings.themeBright;
-        checkboxGlitch.value = response.settings.glitch;
+    chrome.runtime.sendMessage({ action: 'newTabInit' });
 
-        triggerEvent(inputTheme, 'input');
-        triggerEvent(inputThemeBright, 'input');
-        triggerEvent(checkboxGlitch, 'input');
-    });
+	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+		if (request.action === 'newTabSetData')
+		{
+			inputTheme.value = request.settings.theme;
+			inputThemeBright.value = request.settings.themeBright;
+			checkboxGlitch.value = request.settings.glitch;
+
+			triggerEvent(inputTheme, 'input');
+			triggerEvent(inputThemeBright, 'input');
+			triggerEvent(checkboxGlitch, 'input');
+
+			triggerGlitch();
+		}
+	});
 
 })();
 

@@ -178,7 +178,6 @@
             this.delay = 0;
 
             this.bind();
-            this.repeat();
         }
 
         bind() {
@@ -209,11 +208,6 @@
             this.delay = 100;
             this.short = short;
             this.move();
-        }
-
-        repeat() {
-            this.create();
-            //setTimeout(this.repeat.bind(this), this.rand(20000));
         }
 
         move() {

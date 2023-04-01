@@ -1,97 +1,117 @@
 (function() {
 
     let settings = {
-        runDefault: true,
+        runDefault: {}, // for each site
         imageNumber: 1,
-        brightness: 50,
+        brightness: {}, // for each image
         theme: 170,
         themeBright: 50,
         glitch: true
     };
 
+    const defaultSettings = {
+        runDefault: false,
+        brightness : 50
+    }
+
     /* save images in images/ and name them like 1.png, 2.png ... [imagesCount].png. Only png)) */
-    const imagesCount = 64;
-    console.log(imagesCount);
+    const imagesCount = 85;
 
-    chrome.storage.local.get(Object.keys(settings)).then((result) => {
-        settings = Object.assign(settings, result);
-    });
-
-    /* current Tab */
-    let currentTabId = null;
-    let currentTabData = null;
-
-    chrome.tabs.onActivated.addListener(function(activeInfo) {
-        currentTabId = activeInfo.tabId;
-        queryTabData();
-    });
+    function querySettings() {
+        return new Promise((resolve, reject) => {
+            chrome.storage.local.get(Object.keys(settings)).then((result) => {
+                settings = Object.assign(settings, result);
+                resolve(settings);
+            }).catch(reason => reject(reason));
+        });
+    }
 
 
 
     function queryTabData() {
-        chrome.tabs.sendMessage(currentTabId, { action: 'customizerTabGetState' }, function(response) {
-            const error = chrome.runtime.lastError;
-            if (error) {
-                currentTabData = null;
-                return;
-            }
-            currentTabData = response;
-        });
+        return new Promise((resolve, reject) => {
+            chrome.tabs.query({ currentWindow: true, active: true }, tabs => {
+                const currentTabId = tabs[0].id;
+
+                chrome.tabs.sendMessage(currentTabId, {action: 'tabGetData'}, response => {
+                    if (chrome.runtime.lastError)
+                        reject('error');
+
+                    resolve(response);
+                });
+            });
+        })
+    }
+
+    function sendTabData(data) {
+        return new Promise((resolve, reject) => {
+            chrome.tabs.query({ currentWindow: true, active: true }, tabs => {
+                const currentTabId = tabs[0].id;
+
+                chrome.tabs.sendMessage(currentTabId, { action: 'tabRedraw', data: data });
+                resolve();
+            });
+        })
+    }
+
+    function getImage(index) {
+        return chrome.runtime.getURL("images/" + index + ".png");
     }
 
 
 
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
-        if (request.action === 'customizerInitTab')
+        if (request.action === 'tabInit')
         {
             const imageNumber = Math.floor(Math.random() * imagesCount) + 1;
 
-            const data = {
-                image: getImage(imageNumber),
-                imageIndex: imageNumber,
-                imagesCount: imagesCount,
-                active: settings.runDefault,
-                brightness: settings.brightness
-            }
+            querySettings().then(settings => {
+                const data = {
+                    image: getImage(imageNumber),
+                    imageIndex: imageNumber,
+                    active: settings.runDefault[request.host] ?? defaultSettings.runDefault,
+                    brightness: settings.brightness[imageNumber] ?? defaultSettings.brightness,
+                }
 
-            if (sender?.tab?.id === currentTabId)
-                currentTabData = data;
+                sendTabData(data);
+            })
+        }
+        else if (request.action === 'popupInit')
+        {
+            querySettings().then(settings => {
+                queryTabData().then(tabData => {
 
-            sendResponse(data);
+                    chrome.runtime.sendMessage({
+                        action: 'popupSetData',
+                        settings: settings,
+                        defaultSettings: defaultSettings,
+                        tabData: tabData,
+                        imagesCount: imagesCount
+                    });
+                })
+            })
         }
-        else if (request.action === 'customizerInitPopup')
+        else if (request.action === 'saveSettings')
         {
-            sendResponse({
-                settings: settings,
-                tabData: currentTabData
-            });
-        }
-        else if (request.action === 'customizerSaveSettings')
-        {
-            settings = Object.assign(settings, request.settings)
             chrome.storage.local.set(request.settings);
         }
-        else if (request.action === 'customizerPopupApply')
+        else if (request.action === 'popupApply')
         {
-            if (currentTabId && currentTabData)
-            {
-                currentTabData = request.tabData;
-                currentTabData.image = getImage(currentTabData.imageIndex);
-                chrome.tabs.sendMessage(currentTabId, { action: 'customizerTabRedraw', data: request.tabData });
-            }
+            request.tabData.image = getImage(request.tabData.imageIndex);
+            sendTabData(request.tabData);
         }
-        else if (request.action === 'customizerInitNewTab')
+        else if (request.action === 'newTabInit')
         {
-            sendResponse({
-                settings: settings,
-            });
+            querySettings().then(settings => {
+                chrome.runtime.sendMessage({
+                    action: 'newTabSetData',
+                    settings: settings,
+                });
+            })
         }
     });
 
-    function getImage(index) {
-        return chrome.runtime.getURL("images/" + index + ".png");
-    }
 })();
 
 

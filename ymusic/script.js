@@ -13,24 +13,22 @@
         active: false,
         image: null,
         imageIndex: 1,
-        brightness: 0
+        brightness: 0,
+        host: location.host
     }
 
-    chrome.runtime.sendMessage({ action: 'customizerInitTab' }, function(response) {
-        applyData(response);
-    });
+    chrome.runtime.sendMessage({ action: 'tabInit', host: location.host });
 
     chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-            if (request.action === "customizerTabRedraw")
-            {
-                applyData(request.data);
-            }
-            else if (request.action === "customizerTabGetState")
-            {
-                sendResponse(data);
-            }
+        if (request.action === 'tabRedraw')
+        {
+            applyData(request.data);
         }
-    );
+        else if (request.action === 'tabGetData')
+        {
+            sendResponse(data);
+        }
+    });
 
     function applyData(newData) {
         this.data = Object.assign(data, newData);

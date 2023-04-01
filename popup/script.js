@@ -12,29 +12,43 @@
         brightness: 0
     }
 
-    chrome.runtime.sendMessage({ action: 'customizerInitPopup' }, function(response) {
+    let settings = {
+        runDefault: {},
+        brightness: {}
+    };
+    let defaultSettings;
 
-        setTheme(response.settings.theme, response.settings.themeBright, response.settings.glitch);
+    chrome.runtime.sendMessage({ action: 'popupInit' });
 
-        if (response?.settings?.runDefault)
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        if (request.action === 'popupSetData')
         {
-            checkboxRunDefault.value = 1;
+            tabData = Object.assign(tabData, request.tabData ?? {});
+            settings = {
+                runDefault: request.settings.runDefault,
+                brightness: request.settings.brightness
+            };
+            defaultSettings = request.defaultSettings;
+
+
+            setTheme(request.settings.theme, request.settings.themeBright, request.settings.glitch);
+
+            const runDefault = settings.runDefault[tabData.host] ?? defaultSettings.runDefault;
+            checkboxRunDefault.value = runDefault ? 1 : '';
+
+            checkboxRun.value = tabData.active ? 1 : '';
+
+            inputBrightness.value = settings.brightness[tabData.imageIndex] ?? defaultSettings.brightness;
+            inputImage.value = tabData.imageIndex;
+            inputImage.dataset.max = request.imagesCount;
+
             triggerEvent(checkboxRunDefault, 'input');
-        }
-
-        tabData = Object.assign(tabData, response.tabData ?? {});
-
-        if (tabData.active)
-        {
-            checkboxRun.value = 1;
+            triggerEvent(inputBrightness, 'input');
+            triggerEvent(inputImage, 'input');
             triggerEvent(checkboxRun, 'input');
-        }
-        inputBrightness.value = tabData.brightness;
-        inputImage.value = tabData.imageIndex;
-        inputImage.dataset.max = tabData.imagesCount;
 
-        triggerEvent(inputBrightness, 'input');
-        triggerEvent(inputImage, 'input');
+            triggerGlitch();
+        }
     });
 
 
@@ -46,33 +60,38 @@
 
     inputBrightness.addEventListener('input', function (e) {
         tabData.brightness = parseInt(inputBrightness.value);
+        settings.brightness[tabData.imageIndex] = inputBrightness.value;
+
         queryRedrawTab();
+        querySaveSettings();
     });
 
     inputImage.addEventListener('input', function (e) {
         tabData.imageIndex = parseInt(inputImage.value);
-        queryRedrawTab();
+        inputBrightness.value = settings.brightness[tabData.imageIndex] ?? defaultSettings.brightness;
+        triggerEvent(inputBrightness, 'input');
     });
 
 
     checkboxRunDefault.addEventListener('input', function (e) {
         let active = Boolean(this.value);
+        settings.runDefault[tabData.host] = active;
 
-        const message = {
-            action: "customizerSaveSettings",
-            settings: {
-                runDefault: active
-            }
-        };
-        chrome.runtime.sendMessage(message);
+        querySaveSettings();
     });
 
     function queryRedrawTab() {
-        const message = {
-            action: "customizerPopupApply",
+        chrome.runtime.sendMessage({
+            action: "popupApply",
             tabData: tabData
-        };
-        chrome.runtime.sendMessage(message, function(response) {});
+        });
+    }
+
+    function querySaveSettings() {
+        chrome.runtime.sendMessage({
+            action: "saveSettings",
+            settings: settings
+        });
     }
 })();
 
